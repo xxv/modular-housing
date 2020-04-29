@@ -7,18 +7,24 @@ space_between_rails = 122.5;
 
 z_rail_length = 426.4;
 zrail_lip = 5;
-zrail_inset_from_face = 15;
+zrail_inset_from_face = 14.2;
 
 power_supply = [129, 98, 38];
+power_supply_hole_spacing = 33;
+power_supply_hole_size = 3.3;
 
 
 enclosure_depth = 120;
 
 // how much the bottom gets pulled in. This creates the angle.
 side_bottom_inset = 25;
+side_radius = 5;
+//side_radius = 0.01;
 
 m3_hole_size = 3.3;
 m3_nut = [2.5, 5.5];
+
+m4_hole_size = 4.4;
 
 material_width = 3;
 
@@ -26,17 +32,21 @@ tnut_inset_from_edge = 20;
 
 front_spacing = face_height + zrail_lip * 2;
 
-back_size = [z_rail_length, front_spacing];
-side_size = [enclosure_depth, front_spacing];
+interior = [z_rail_length, front_spacing, enclosure_depth];
 
-power_supply_pos = [(back_size.x - power_supply.x)/2, 10];
+bottom_size = [interior.x, interior.y - material_width * 2 - 10];
+side_size = [interior.z, interior.y];
 
-angle = atan(side_bottom_inset/face_height);
+tab_width = 10;
+tab_inset_from_edge = 10;
+bottom_tab_inset_from_edge = (tnut_inset_from_edge - tab_width)/2;
+
+power_supply_pos = [80, 30];
+
+angle = atan(side_bottom_inset/interior.y);
 
 
-*back(back_size);
 mockup();
-*side();
 
 $fa = 0.5;
 $fs = 0.5;
@@ -46,45 +56,57 @@ smidge = 0.01;
 module mockup() {
   rotate([angle, 0, 0]) {
     rotate([-angle, 0, 0]) {
+      translate([0, (interior.y - bottom_size.y) / 2])
       linear_extrude(height=material_width)
-        back(back_size);
+        bottom(bottom_size);
       color("#aaa")
-        translate([0, 0, -10])
+        translate([0, 0, material_width])
         translate(power_supply_pos)
           cube(power_supply);
-
     }
 
-    color("green")
-    translate([0, zrail_lip, enclosure_depth - side_bottom_inset])
-      module_faceplate();
+    %color("green") {
+      translate([0, zrail_lip, enclosure_depth - side_bottom_inset - 2 + side_radius]) {
+        module_faceplate();
+        translate([0.5, 11, -60])
+        cube([39.3, 106.5, 60]);
+        }
+    }
 
     color("#ccc")
       translate([0, zrail_lip + material_width, 0]) {
-        translate([0, space_between_rails, enclosure_depth - side_bottom_inset - zrail_inset_from_face])
+        translate([0, 0, enclosure_depth - side_bottom_inset - zrail_inset_from_face + side_radius]) {
+        translate([0, space_between_rails, 0])
           rotate([90, 90, 90])
-            zrail(back_size.x);
+            zrail(interior.x);
 
-      translate([0, 0, enclosure_depth - side_bottom_inset - zrail_inset_from_face])
         mirror([0, 1, 0])
           rotate([90, 90, 90])
-            zrail(back_size.x);
+            zrail(interior.x);
+        }
       }
 
-    cube([back_size.x, material_width, enclosure_depth - side_bottom_inset]);
-    translate([0, back_size.y - material_width, -side_bottom_inset])
-      cube([back_size.x, material_width, enclosure_depth]);
+    translate([0, material_width, 0])
+      rotate([90, 0, 0])
+        linear_extrude(height=material_width)
+          panel([interior.x, enclosure_depth - side_bottom_inset + side_radius], tab_inset_from_edge);
+
+    translate([0, interior.y, -side_bottom_inset])
+      rotate([90, 0, 0])
+        linear_extrude(height=material_width)
+          rear_panel([interior.x, enclosure_depth + side_radius]);
 
     // sides
+    color("red")
     translate([0, 0, side_size.x - side_bottom_inset]) {
-      translate([back_size.x, 0, 0])
+      translate([interior.x, 0, 0])
         rotate([0, 90, 0])
           linear_extrude(height=material_width)
-            side(side_size, side_bottom_inset);
+            side(side_size, side_bottom_inset, side_radius);
       translate([-material_width, 0, 0])
         rotate([0, 90, 0])
           linear_extrude(height=material_width)
-            side(side_size, side_bottom_inset);
+            side(side_size, side_bottom_inset, side_radius);
       }
   }
 }
@@ -101,9 +123,27 @@ module tnut(size, nut, extra=1) {
   }
 }
 
-module back(size) {
+module panel(size, tab_inset) {
+  square(size);
+
+  tab_depth = material_width;
+
+  translate([-tab_depth + smidge, tab_inset])
+    square([tab_depth + smidge, tab_width]);
+
+  translate([-tab_depth + smidge, size.y - tab_inset - tab_width])
+    square([tab_depth + smidge, tab_width]);
+
+  translate([size.x - smidge, tab_inset])
+    square([tab_depth + smidge, tab_width]);
+
+  translate([size.x - smidge, size.y - tab_inset - tab_width])
+    square([tab_depth + smidge, tab_width]);
+}
+
+module bottom(size) {
   difference() {
-    square(size);
+    panel(size, bottom_tab_inset_from_edge);
     tnut_screw_length = 10;
     tnut_hole = tnut_screw_length - material_width;
 
@@ -118,12 +158,24 @@ module back(size) {
       rotate([0, 0, 180])
         m3_tnut(tnut_hole + smidge);
 
-    translate(power_supply_pos + [power_supply.x + 10, 0])
-      power_plug_holes();
 
-    translate(power_supply_pos)
-      square([power_supply.x, power_supply.y]);
+    translate(power_supply_pos + [73.5 + 4.5, 31]) {
+      circle(d=power_supply_hole_size);
+      translate([0, power_supply_hole_spacing])
+        circle(d=power_supply_hole_size);
+    }
   }
+}
+
+module rear_panel(size) {
+  difference() {
+    panel(size, tab_inset_from_edge);
+
+    translate(power_supply_pos + [power_supply.x - 130, -20])
+      rotate([0, 180])
+      power_plug_holes();
+  }
+
 }
 
 module power_plug_holes() {
@@ -138,17 +190,38 @@ module power_plug_holes() {
     translate([plug_hole.x + screw_offset, plug_hole.y/2])
       circle(r=1.7);
 
-    switch_hole = [12.9, 19.8];
+    switch_hole = [12.5, 19.8];
 
     translate([plug_hole.x + screw_offset + switch_offset, 0])
       square(switch_hole);
   }
 }
 
-module side(size, back_slope) {
-  minkowski() {
-    polygon([[0, 0], [size.x - back_slope, 0], [size.x, size.y], [0, size.y]]);
-    circle(r=5);
+module side(size, bottom_slope, side_radius) {
+  difference() {
+    minkowski() {
+      polygon([[0, 0], [size.x - bottom_slope, 0], [size.x, size.y], [0, size.y]]);
+      circle(r=side_radius);
+    }
+
+    // zrail holes
+    translate([zrail_inset_from_face - side_radius, zrail_lip + material_width])
+      circle(d=m4_hole_size);
+    translate([zrail_inset_from_face - side_radius, size.y - zrail_lip - material_width])
+      circle(d=m4_hole_size);
+
+    // tab slots
+    translate([tab_inset_from_edge - side_radius, 0])
+      square([tab_width, material_width]);
+
+    translate([tab_inset_from_edge - side_radius, size.y - material_width])
+      square([tab_width, material_width]);
+
+    translate([size.x - tab_inset_from_edge - bottom_slope - tab_width, 0])
+      square([tab_width, material_width]);
+
+    translate([size.x - tab_inset_from_edge - tab_width,  size.y - material_width])
+      square([tab_width, material_width]);
   }
 }
 
