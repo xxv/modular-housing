@@ -19,7 +19,6 @@ enclosure_depth = 120;
 // how much the bottom gets pulled in. This creates the angle.
 side_bottom_inset = 25;
 side_radius = 5;
-//side_radius = 0.01;
 
 m3_hole_size = 3.3;
 m3_nut = [2.5, 5.5];
@@ -45,8 +44,6 @@ power_supply_pos = [80, 30];
 
 angle = atan(side_bottom_inset/interior.y);
 
-
-mockup();
 
 $fa = 0.5;
 $fs = 0.5;
@@ -89,12 +86,12 @@ module mockup() {
     translate([0, material_width, 0])
       rotate([90, 0, 0])
         linear_extrude(height=material_width)
-          panel([interior.x, enclosure_depth - side_bottom_inset + side_radius], tab_inset_from_edge);
+          front_panel();
 
     translate([0, interior.y, -side_bottom_inset])
       rotate([90, 0, 0])
         linear_extrude(height=material_width)
-          rear_panel([interior.x, enclosure_depth + side_radius]);
+          rear_panel();
 
     // sides
     color("red")
@@ -102,11 +99,11 @@ module mockup() {
       translate([interior.x, 0, 0])
         rotate([0, 90, 0])
           linear_extrude(height=material_width)
-            side(side_size, side_bottom_inset, side_radius);
+            side();
       translate([-material_width, 0, 0])
         rotate([0, 90, 0])
           linear_extrude(height=material_width)
-            side(side_size, side_bottom_inset, side_radius);
+            side();
       }
   }
 }
@@ -167,7 +164,12 @@ module bottom(size) {
   }
 }
 
-module rear_panel(size) {
+module front_panel() {
+  panel([interior.x, enclosure_depth - side_bottom_inset + side_radius], tab_inset_from_edge);
+}
+
+module rear_panel() {
+  size = [interior.x, enclosure_depth + side_radius];
   difference() {
     panel(size, tab_inset_from_edge);
 
@@ -197,10 +199,12 @@ module power_plug_holes() {
   }
 }
 
-module side(size, bottom_slope, side_radius) {
+module side() {
+  size = side_size;
+
   difference() {
     minkowski() {
-      polygon([[0, 0], [size.x - bottom_slope, 0], [size.x, size.y], [0, size.y]]);
+      polygon([[0, 0], [size.x - side_bottom_inset, 0], [size.x, size.y], [0, size.y]]);
       circle(r=side_radius);
     }
 
@@ -217,7 +221,7 @@ module side(size, bottom_slope, side_radius) {
     translate([tab_inset_from_edge - side_radius, size.y - material_width])
       square([tab_width, material_width]);
 
-    translate([size.x - tab_inset_from_edge - bottom_slope - tab_width, 0])
+    translate([size.x - tab_inset_from_edge - side_bottom_inset - tab_width, 0])
       square([tab_width, material_width]);
 
     translate([size.x - tab_inset_from_edge - tab_width,  size.y - material_width])
@@ -227,7 +231,7 @@ module side(size, bottom_slope, side_radius) {
     tnut_inset = tnut_inset_from_edge + bottom_size_difference/2;
 
     // bottom connectors
-    translate([size.x - bottom_slope, 0])
+    translate([size.x - side_bottom_inset, 0])
       rotate([0, 0, -angle]) {
         translate([-material_width/2, size.y - tnut_inset])
           circle(d=m3_hole_size);
