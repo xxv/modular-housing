@@ -222,6 +222,22 @@ module side(size, bottom_slope, side_radius) {
 
     translate([size.x - tab_inset_from_edge - tab_width,  size.y - material_width])
       square([tab_width, material_width]);
+
+    bottom_size_difference = interior.y - bottom_size.y;
+    tnut_inset = tnut_inset_from_edge + bottom_size_difference/2;
+
+    // bottom connectors
+    translate([size.x - bottom_slope, 0])
+      rotate([0, 0, -angle]) {
+        translate([-material_width/2, size.y - tnut_inset])
+          circle(d=m3_hole_size);
+        translate([-material_width/2, tnut_inset])
+          circle(d=m3_hole_size);
+        translate([-material_width, bottom_tab_inset_from_edge + bottom_size_difference/2])
+          square([material_width, tab_width]);
+        translate([-material_width, size.y - tab_width - (bottom_tab_inset_from_edge + bottom_size_difference/2)])
+          square([material_width, tab_width]);
+      }
   }
 }
 
