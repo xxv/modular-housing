@@ -28,6 +28,7 @@ m4_hole_size = 4.4;
 material_width = 3;
 
 tnut_inset_from_edge = 20;
+tnut_screw_length = 10;
 
 front_spacing = face_height + zrail_lip * 2;
 
@@ -141,7 +142,6 @@ module panel(size, tab_inset) {
 module bottom(size) {
   difference() {
     panel(size, bottom_tab_inset_from_edge);
-    tnut_screw_length = 10;
     tnut_hole = tnut_screw_length - material_width;
 
     translate([-smidge, tnut_inset_from_edge])
