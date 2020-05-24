@@ -21,12 +21,12 @@ Power Supply Ingredients
 * 1x Mean Well RT-65B power supply (Digi-Key part [1866-4311-ND](https://www.digikey.com/product-detail/en/mean-well-usa-inc/RT-65B/1866-4311-ND/7706375))
 * 1x IEC 320-C14 panel mount power inlet (Digi-Key part [Q336-ND](https://www.digikey.com/product-detail/en/qualtek/703W-00-08/Q336-ND/1164207))
 * 1x power switch (Digi-Key part [CH755-ND](https://www.digikey.com/product-detail/en/zf-electronics/SRB22A2FBBNN/CH755-ND/446021))
-* 14 gauge wire
-* 5× 14-16 gauge crimp spade connectors
-* 2× M3x10 flat head bolts
-* 2× M3x6 bolts
-* 4× M3 nuts
-* 2× M3 washers
+* 14 gauge solid copper wire (I grabbed some from a cut of standard 15A home wiring Romex)
+* 5× 14-16 gauge crimp spade connectors (shielded!) for crimping to the power inlet and switch
+* 2× M2.5×10 flat head bolts (black, for mounting the power inlet)
+* 2× M2.5 nuts
+* 2× M2.5 washers
+* 2× M3x6 bolts (for mounting the power supply to the housing)
 
 Case Steps
 ----------
@@ -42,8 +42,16 @@ Case Steps
 Power Supply Steps
 ------------------
 
-1. Attach power supply with M3x6 screws + nuts to the OpenBeam rod (I chose to hang it from the back)
-2. Attach power inlet with M3x10 bolts, washers, & nuts
-3. Attach crimp spade connectors to wire
-4. Wire Neutral (N) and Earth (E) directly from inlet to power supply
-5. Wire Load (L) from inlet to switch, then from switch to power supply
+1. Attach power supply to the bottom panel with M3 screws.
+2. Attach power inlet with M2.5x10 bolts, washers, & nuts.
+3. Clip in switch.
+4. Wire Neutral (N) and Earth (E) directly from inlet to power supply (note the markings on the
+   connector and on the screw terminals)
+5. Wire Load (L) from inlet to switch, then from switch to power supply.
+5. Once your wires are laid out, crimp on connectors. Crimp them hard! Crimping to solid core wire
+   requires extra effort. Make sure they don't wiggle.
+6. Double, then triple-check all your wiring for this. Make sure that none of the metal for the
+   mains voltage are exposed to the inside of the case (with the exception of the earth/ground
+   wire). This means covering up the screw terminals with electrical tape or similar. Remember:
+   while 120VAC wiring can be extremely dangerous, if you're careful and treat it with respect, you
+   can build with it safely.
